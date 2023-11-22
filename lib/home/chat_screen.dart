@@ -1,135 +1,226 @@
-import 'package:awa/utils/colors.dart';
-import 'package:awa/home/direct_message_screen.dart';
-import 'package:awa/home/overlapping.dart';
-import 'package:awa/utils/tasks_loader.dart';
-import 'package:flutter/material.dart';
-import 'package:grouped_list/grouped_list.dart';
-import 'package:intl/intl.dart';
+import 'dart:convert';
+import 'dart:io';
 
-class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key, required this.title});
-  final String title;
+import 'package:awa/home/messages.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import 'package:mime/mime.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
+
+class ChatPage extends StatefulWidget {
+  const ChatPage({
+    super.key,
+  });
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  State<ChatPage> createState() => _ChatPageState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
-  final TextEditingController messageTextFieldController =
-      TextEditingController();
+class _ChatPageState extends State<ChatPage> {
+  List<types.Message> _messages = [];
+  final _user = const types.User(
+    id: '82091008-a484-4a89-ae75-a22bf8d6f3ac',
+  );
 
   @override
-  void dispose() {
-    messageTextFieldController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _loadMessages();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-          title: const Text("Channel"),
-          backgroundColor: awaBlackBlue,
-          leading: IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () {
-              OverlappingPanels.of(context)?.reveal(RevealSide.left);
-            },
-          )),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 5.0),
-        child: Column(
-          children: [
-            Expanded(
-                child: GroupedListView<CommunityMessageModel, DateTime>(
-              reverse: true,
-              order: GroupedListOrder.DESC,
-              useStickyGroupSeparators: true,
-              floatingHeader: true,
-              padding: const EdgeInsets.all(8),
-              elements: messages,
-              groupBy: (message) => DateTime(
-                message.date.year,
-                message.date.month,
-                message.date.day,
-              ),
-              groupHeaderBuilder: (CommunityMessageModel message) => SizedBox(
-                height: 40,
-                child: Center(
-                  child: Card(
-                    color: awaSnowWhite,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        DateFormat.yMMMd().format(message.date),
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
+  void _addMessage(types.Message message) {
+    setState(() {
+      _messages.insert(0, message);
+    });
+  }
+
+  void _handleAttachmentPressed() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) => SafeArea(
+        child: SizedBox(
+          height: 144,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _handleImageSelection();
+                },
+                child: const Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text('Photo'),
                 ),
               ),
-              itemBuilder: (context, CommunityMessageModel message) => Align(
-                alignment: message.isSentByMe
-                    ? Alignment.centerRight
-                    : Alignment.centerLeft,
-                child: Card(
-                  color: Colors.grey.shade300,
-                  elevation: 1,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          message.sender,
-                          style: const TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          message.text,
-                          style: const TextStyle(fontSize: 20),
-                        ),
-                      ],
-                    ),
-                  ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _handleFileSelection();
+                },
+                child: const Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text('File'),
                 ),
               ),
-            )),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: AwaInputField(
-                hintText: "Type your message here",
-                onSuffixIconPress: () {
-                  sendMessage();
-                  setState(() {
-                    messageTextFieldController.text = "";
-                  });
-                },
-                preffixIconData: Icons.add,
-                suffixIconData: Icons.send_rounded,
-                textEditingController: messageTextFieldController,
-                textInputType: TextInputType.text,
-                validator: (p0) {
-                  return null;
-                },
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text('Cancel'),
+                ),
               ),
-            ),
-            const SizedBox(
-              height: 10,
-            )
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  void sendMessage() {
-    final userMessage = CommunityMessageModel(
-      sender: "Me",
-      text: messageTextFieldController.text,
-      date: DateTime.now(),
-      isSentByMe: true,
+  void _handleFileSelection() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.any,
     );
-    messages.add(userMessage);
+
+    if (result != null && result.files.single.path != null) {
+      final message = types.FileMessage(
+        author: _user,
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+        id: const Uuid().v4(),
+        mimeType: lookupMimeType(result.files.single.path!),
+        name: result.files.single.name,
+        size: result.files.single.size,
+        uri: result.files.single.path!,
+      );
+
+      _addMessage(message);
+    }
   }
+
+  void _handleImageSelection() async {
+    final result = await ImagePicker().pickImage(
+      imageQuality: 70,
+      maxWidth: 1440,
+      source: ImageSource.gallery,
+    );
+
+    if (result != null) {
+      final bytes = await result.readAsBytes();
+      final image = await decodeImageFromList(bytes);
+
+      final message = types.ImageMessage(
+        author: _user,
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+        height: image.height.toDouble(),
+        id: const Uuid().v4(),
+        name: result.name,
+        size: bytes.length,
+        uri: result.path,
+        width: image.width.toDouble(),
+      );
+
+      _addMessage(message);
+    }
+  }
+
+  void _handleMessageTap(BuildContext _, types.Message message) async {
+    if (message is types.FileMessage) {
+      var localPath = message.uri;
+
+      if (message.uri.startsWith('http')) {
+        try {
+          final index =
+              _messages.indexWhere((element) => element.id == message.id);
+          final updatedMessage =
+              (_messages[index] as types.FileMessage).copyWith(
+            isLoading: true,
+          );
+
+          setState(() {
+            _messages[index] = updatedMessage;
+          });
+
+          final client = http.Client();
+          final request = await client.get(Uri.parse(message.uri));
+          final bytes = request.bodyBytes;
+          final documentsDir = (await getApplicationDocumentsDirectory()).path;
+          localPath = '$documentsDir/${message.name}';
+
+          if (!File(localPath).existsSync()) {
+            final file = File(localPath);
+            await file.writeAsBytes(bytes);
+          }
+        } finally {
+          final index =
+              _messages.indexWhere((element) => element.id == message.id);
+          final updatedMessage =
+              (_messages[index] as types.FileMessage).copyWith(
+            isLoading: null,
+          );
+
+          setState(() {
+            _messages[index] = updatedMessage;
+          });
+        }
+      }
+
+      await OpenFilex.open(localPath);
+    }
+  }
+
+  void _handlePreviewDataFetched(
+    types.TextMessage message,
+    types.PreviewData previewData,
+  ) {
+    final index = _messages.indexWhere((element) => element.id == message.id);
+    final updatedMessage = (_messages[index] as types.TextMessage).copyWith(
+      previewData: previewData,
+    );
+
+    setState(() {
+      _messages[index] = updatedMessage;
+    });
+  }
+
+  void _handleSendPressed(types.PartialText message) {
+    final textMessage = types.TextMessage(
+      author: _user,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+      id: const Uuid().v4(),
+      text: message.text,
+    );
+
+    _addMessage(textMessage);
+  }
+
+  void _loadMessages() async {
+    final response = allMessages;
+    final messages = response.map((e) => types.Message.fromJson(e)).toList();
+
+    setState(() {
+      _messages = messages;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: const Text("Chat")),
+        body: Chat(
+          messages: _messages,
+          onAttachmentPressed: _handleAttachmentPressed,
+          onMessageTap: _handleMessageTap,
+          onPreviewDataFetched: _handlePreviewDataFetched,
+          onSendPressed: _handleSendPressed,
+          showUserAvatars: true,
+          showUserNames: true,
+          user: _user,
+        ),
+      );
 }

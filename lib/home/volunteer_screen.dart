@@ -1,17 +1,19 @@
-import 'package:awa/utils/colors.dart';
-import 'package:awa/utils/tasks_loader.dart';
+import 'package:awa/home/chat_screen.dart';
 import 'package:flutter/material.dart';
 
-class DirectMessageView extends StatefulWidget {
-  const DirectMessageView({
+import 'package:awa/utils/colors.dart';
+import 'package:awa/utils/tasks_loader.dart';
+
+class VolunteerScreen extends StatefulWidget {
+  const VolunteerScreen({
     super.key,
   });
 
   @override
-  State<DirectMessageView> createState() => _DirectMessageViewState();
+  State<VolunteerScreen> createState() => _VolunteerScreenState();
 }
 
-class _DirectMessageViewState extends State<DirectMessageView> {
+class _VolunteerScreenState extends State<VolunteerScreen> {
   final TextEditingController dmTextController = TextEditingController();
 
   @override
@@ -22,57 +24,31 @@ class _DirectMessageViewState extends State<DirectMessageView> {
 
   @override
   Widget build(BuildContext context) {
-    final Size deviceScreen = MediaQuery.of(context).size;
-    return Expanded(
-      child: SafeArea(
-        child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            decoration: BoxDecoration(
-                color: Colors.white, borderRadius: BorderRadius.circular(16)),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(
-                  height: 15,
-                ),
-                const Text(
-                  "Direct Messages",
-                  style: TextStyle(fontSize: 20),
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                SizedBox(
-                  width: deviceScreen.width / 1.6,
-                  child: AwaInputField(
-                    isPassword: false,
-                    onSuffixIconPress: () {},
-                    preffixIconData: Icons.mail,
-                    suffixIconData: Icons.search,
-                    validator: (p0) {
-                      return null;
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ...volunteers.map((user) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 7.0),
+                  child: ContactsWidget(
+                    name: user["name"]!,
+                    avatar: user["avatar"]!,
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ChatPage(),
+                          ));
                     },
-                    hintText: "Search Messages",
-                    textEditingController: dmTextController,
-                    textInputType: TextInputType.text,
+                    status: user["status"]!,
+                    isActive: user["isActive"],
                   ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                ...directMessages.map((user) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 7.0),
-                      child: ContactsWidget(
-                        name: user["name"]!,
-                        avatar: user["avatar"]!,
-                        onTap: () {},
-                        status: user["status"]!,
-                        isActive: user["isActive"],
-                      ),
-                    ))
-              ],
-            )),
+                ))
+          ],
+        ),
       ),
     );
   }
@@ -101,7 +77,7 @@ class ContactsWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         child: Container(
           color: Colors.grey.shade200,
-          width: deviceScreen.width / 1.6,
+          width: deviceScreen.width,
           padding: const EdgeInsets.symmetric(horizontal: 1),
           child:
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -194,7 +170,7 @@ class _AwaInputFieldState extends State<AwaInputField> {
       keyboardType: widget.textInputType,
       autofocus: false,
       maxLines: widget.maxLines,
-      cursorColor: awaBlack,
+      cursorColor: needsAppBlack,
       obscureText: widget.isPassword,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
@@ -206,7 +182,7 @@ class _AwaInputFieldState extends State<AwaInputField> {
         ),
         prefixIcon: Icon(
           widget.preffixIconData,
-          color: awaBlack,
+          color: needsAppBlack,
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15.0),
@@ -229,7 +205,7 @@ class _AwaInputFieldState extends State<AwaInputField> {
           borderSide: BorderSide(
             width: 1,
             style: BorderStyle.solid,
-            color: awaBlack,
+            color: needsAppBlack,
           ),
         ),
         enabledBorder: OutlineInputBorder(
@@ -237,18 +213,18 @@ class _AwaInputFieldState extends State<AwaInputField> {
           borderSide: const BorderSide(
               width: 1, style: BorderStyle.solid, color: Colors.black54),
         ),
-        counterStyle: TextStyle(color: awaBlack),
-        focusColor: awaBlack,
+        counterStyle: TextStyle(color: needsAppBlack),
+        focusColor: needsAppBlack,
         suffixIcon: IconButton(
           onPressed: () {
             widget.onSuffixIconPress();
           },
           icon: Icon(widget.suffixIconData),
-          color: awaBlack,
+          color: needsAppBlack,
         ),
       ),
       style: TextStyle(
-        color: awaBlack,
+        color: needsAppBlack,
       ),
     );
   }

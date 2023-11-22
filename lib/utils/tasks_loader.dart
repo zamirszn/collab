@@ -8,8 +8,6 @@ class TasksRequest {
 
   //   return tasks;
   // }
-
-  
 }
 
 Tasks tasksFromJson(String str) => Tasks.fromJson(json.decode(str));
@@ -45,89 +43,30 @@ class Tasks {
   }
 }
 
-
-
-
-final List<Map<String, dynamic>> myDigitaltasks = [
-  {
-    "taskTitle": "Silicon Valley Agency",
-    "taskDescription": "Specialize in making kuberetes solutions ",
-    "taskIndustry": "Cloud Tech",
-    "taskImage": "images/task5.jpg"
-  },
-  {
-    "taskTitle": "Stimson",
-    "taskDescription":
-        "Scale and manage your businesses with us, we are a California based startup",
-    "taskIndustry": "DevOps",
-    "taskImage": "images/task2.jpg"
-  },
-  {
-    "taskTitle": "DataStax Devs",
-    "taskDescription":
-        "Making the world a better place one line code at a time",
-    "taskIndustry": "Software design",
-    "taskImage": "images/task3.jpg"
-  },
-];
-
-final List<Map<String, dynamic>> directMessages = [
+final List<Map<String, dynamic>> volunteers = [
   {
     "name": "Habeebah Lawal",
     "avatar": "images/user1.jpg",
     "isActive": true,
-    "status": "Having Lunch"
+    "status": "Helping People"
   },
   {
-    "name": "Doris Yang",
+    "name": "Victoria",
     "avatar": "images/user2.jpg",
     "isActive": true,
-    "status": "Active"
+    "status": "Planning Community Clean up 2023"
   },
   {
-    "name": "Trevor De-Santa",
-    "avatar": "images/user3.jpg",
-    "isActive": false,
-    "status": "On Vacation"
-  },
-  {
-    "name": "Zamira Arthur",
+    "name": "Hameedah",
     "avatar": "images/user4.jpg",
-    "isActive": true,
-    "status": "Busy"
-  },
-  {
-    "name": "Mubarak Lawal",
-    "avatar": "images/user5.jpg",
     "isActive": false,
-    "status": "Building AWa"
-  },
-];
-
-final List<Map<String, dynamic>> activeUsers = [
-  {
-    "name": "Habeebah Lawal",
-    "avatar": "images/user1.jpg",
-    "isActive": true,
-    "status": "Having Lunch"
-  },
-  {
-    "name": "Doris Yang",
-    "avatar": "images/user2.jpg",
-    "isActive": true,
-    "status": "Active"
-  },
-  {
-    "name": "Zamira Arthur",
-    "avatar": "images/user4.jpg",
-    "isActive": true,
-    "status": "Busy"
+    "status": "At community meetup"
   },
   {
     "name": "Mubarak Lawal",
     "avatar": "images/user5.jpg",
     "isActive": true,
-    "status": "Building Awa"
+    "status": "Helping community patrol"
   },
 ];
 
@@ -179,8 +118,6 @@ List<CommunityMessageModel> messages = [
       isSentByMe: true),
 ];
 
-
-
 class CommunityMessageModel {
   final String text;
   final DateTime date;
@@ -193,8 +130,3 @@ class CommunityMessageModel {
       required this.date,
       required this.isSentByMe});
 }
-
-
-
-
-

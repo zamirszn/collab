@@ -1,9 +1,8 @@
-
 import 'package:flutter/material.dart';
 
 class LiquidSwipeCard extends StatelessWidget {
   const LiquidSwipeCard({
-     Key? key,
+    Key? key,
     required this.gradient,
     required this.buttonColor,
     required this.name,
@@ -32,7 +31,6 @@ class LiquidSwipeCard extends StatelessWidget {
   final Color bodyColor;
   final VoidCallback onTapName;
   final VoidCallback onSkip;
-  
 
   @override
   Widget build(BuildContext context) {
@@ -79,9 +77,12 @@ class LiquidSwipeCard extends StatelessWidget {
             Container(
               alignment: Alignment.centerLeft,
               padding: const EdgeInsets.all(16),
-              child: Image(
-                image: image,
-                height: 200,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image(
+                  image: image,
+                  height: 200,
+                ),
               ),
             ),
             const Spacer(),

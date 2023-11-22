@@ -44,17 +44,17 @@ class _LiquidSwipeOnboardingState extends State<LiquidSwipeOnboarding> {
                 ),
               );
             },
-            name: "Awa",
+            name: "Collab",
             action: "Skip",
-            image: const AssetImage("images/awa_logo.png"),
-            title: "Get Precise",
-            subtitle: "Weather Forecasts",
-            body: "Best solution to get live and accurate forecasts \n"
-                "in your city ",
-            buttonColor: awaBlackBlue,
+            image: const AssetImage("images/comm2.jpg"),
+            title: "Join the ",
+            subtitle: "Collab Community",
+            body: "Ready to make a difference? \n"
+                "The comunity is here for you",
+            buttonColor: needsAppBlackBlue,
             titleColor: Colors.grey.shade700,
             subtitleColor: Colors.grey.shade900,
-            bodyColor: awaBlackBlue,
+            bodyColor: needsAppBlackBlue,
             gradient: const LinearGradient(
               colors: [Colors.white, Colors.white],
               begin: Alignment.topLeft,
@@ -76,18 +76,18 @@ class _LiquidSwipeOnboardingState extends State<LiquidSwipeOnboarding> {
             },
             name: "Back",
             action: "Done",
-            image: const AssetImage("images/cloud_sun.png"),
-            title: "For",
-            subtitle: "Outdoorsies",
-            body: "Never miss an important event \n"
-                "due to a heavy down pour or\n"
-                "a stormy weather",
+            image: const AssetImage("images/comm.jpg"),
+            title: "Welcome to",
+            subtitle: "Collab Community",
+            body: "Building Stronger Communities\n"
+                "Connect with your neighbors,\n"
+                "share resources, and network",
             buttonColor: Colors.white,
             titleColor: Colors.grey.shade500,
             subtitleColor: Colors.grey.shade200,
             bodyColor: Colors.white.withOpacity(0.8),
-            gradient: const LinearGradient(
-              colors: [Colors.yellow, Colors.purple],
+            gradient: LinearGradient(
+              colors: [Colors.grey, needsAppBlackBlue],
               begin: Alignment.topRight,
               end: Alignment.bottomLeft,
             ),
